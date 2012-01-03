@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:tal="http://xml.zope.org/namespaces/tal">
+    <head>
+        <title>CM PaaS Tool</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+        <meta name="keywords" content="python web application tool" />
+        <meta name="description" content="pyramid web application" />
+        <link rel="shortcut icon" href="${request.static_url('paas:static/images/favicon.ico')}" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/css/paas.css')}" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/js/flexigrid/css/flexigrid/flexigrid.css')}" type="text/css" media="screen" charset="utf-8" />
+        <!--[if lte IE 6]>
+        <link rel="stylesheet" href="${request.static_url('paas:static/css/ie6.css')}" type="text/css" media="screen" charset="utf-8" />
+        <![endif]-->
+    </head>
+    <body>
+        <!-- The dark background -->
+        <div class="background-cover">&nbsp;</div>
+        <div class="background-cover-top">&nbsp;</div>
+        <div id="overlay-box-loading" class="overlay-loading">
+            <p>Processing&nbsp;...&nbsp;Please Wait</p>
+        </div>
+        <div id="wrap">
+            <div id="top">
+                <div class="top align-center">
+                    <h1>CM PaaS Tool</h1>
+                </div>
+            </div>
+            <div id="middle">
+                <table id="releases" style="display: none;"></table>
+            </div>
+            <div id="bottom">
+                <div class="bottom">
+                    <div id="status-panel">
+                        <div id="app-status">
+                            <span>User ID:</span>
+                            <span id="status-ready" tal:content="id">&nbsp;</span>
+                            <span id="notifications">
+                                <img id="loading" src="/static/images/loading_bar.gif" alt="loading" />
+                                <span>Processing....Please Wait</span>
+                            </span>
+                            <span id="message" class="ui-widget"></span>
+                        </div>
+                        <div id="app-options">
+                            <ul>
+                                <li class="ignore" id="logout"><a href="/logout">Exit Tool</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+          <div class="footer">&copy; Copyright 2011, Shopzilla, Inc.</div>
+        </div>
+    </body>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/paas.js"></script>
+    <script type="text/javascript" src="/static/js/flexigrid/flexigrid.js"></script>
+    <script type="text/javascript">
+        $(document).ready(
+            function () {
+                if ($('a.closeEl')) $('a.closeEl').bind('click', toggleContent);
+                var timecolwidth = 110;
+                var releaseGrid = $("#releases").flexigrid({
+                    url: '/REST/app/listing',
+                    method: 'GET',
+                    dataType: 'json',
+                    colModel: [
+                        {display: 'ID', name: 'id', width: 70, sortable: false, align: 'center'},
+                        {display: 'Project', name: 'project', width: 100, sortable: false, align: 'left'},
+                        {display: 'Environment', name: 'environment', width: 70, sortable: false, align: 'center'},
+                        {display: 'Version', name: 'version', width: 250, sortable: false, align: 'left'},
+                        {display: 'Date Created', name: 'createdDate', width: 100, sortable: false, align: 'center'},
+                        {display: 'Approved By', name: 'approvedBy', width: 65, sortable: false, align: 'center'},
+                        {display: 'Requestd By', name: 'createdBy', width: 65, sortable: false, align: 'center'},
+                        {display: 'RT', name: 'rt', width: 50, sortable: false, align: 'left', nowrap: false},
+                        {display: 'Type', name: 'type', width: 50, sortable: false, align: 'center'},
+                        {display: 'Status', name: 'status', width: 50, sortable: false, align: 'center'},
+//                        {display: '', name: 'icons', width: 75, sortable: false, align: 'center'},
+                    ],
+                    buttons: [
+                        {name: 'New', bclass: 'add', onpress : showCreatePage},
+                        {separator: true},
+                        {name: 'Reports', bclass: 'reports', onpress : showReports},
+                        {separator: true},
+                    ],
+                    searchitems: [
+                        {display: 'Status', name : 'releaseStatus', isdefault: true},
+                        {display: 'Environment', name : 'releaseEnvironment', isdefault: false},
+                        {display: 'Project', name : 'releaseProject', isdefault: false},
+                        {display: 'ID', name : 'id', isdefault: false},
+                    ],
+                    sortname: 'createdDate',
+                    sortorder: 'desc',
+                    usepager: true,
+                    title: 'Release Items',
+                    useRp: true,
+                    rp: 30,
+                    rpOptions: [15,30,45,60],
+                    showTableToggleBtn: false,
+                    showToggleBtn: false,
+                    width: $(window).width()-40,
+                    height: $(window).height()-225,
+                    singleSelect: true,
+                    resizable: false,
+                });
+            });
+        var resizeTimer;
+        $(window).resize(function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                $(".flexigrid").width($(window).width()-40);
+                $("#release").width($(".flexigrid").width()-17);
+                $(".hDivBox table").width($(".hDiv").width()-15);
+                $(".bDiv").height($(window).height()-325);
+            }, 50);
+        });
+    </script>
+</html>
