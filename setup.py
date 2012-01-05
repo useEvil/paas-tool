@@ -17,6 +17,7 @@ requires = [
     'WebHelpers>=1.3',
     'simplejson>=2.1.5',
     'decorator>=3.2.0',
+    'Paste',
     ]
 
 if sys.version_info[:3] < (2,5,0):
