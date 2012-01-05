@@ -18,6 +18,7 @@ requires = [
     'simplejson>=2.1.5',
     'decorator>=3.2.0',
     'Paste',
+    'pysqlite2',
     ]
 
 if sys.version_info[:3] < (2,5,0):
