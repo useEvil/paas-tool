@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:tal="http://xml.zope.org/namespaces/tal">
+    <head>
+        <title>PaaS Tool</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+        <meta name="keywords" content="python web application tool" />
+        <meta name="description" content="pyramid web application" />
+        <link rel="shortcut icon" href="${request.static_url('paas:static/images/favicon.ico')}" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/css/paas.css')}" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/js/flexigrid/css/flexigrid/flexigrid.css')}" type="text/css" media="screen" charset="utf-8" />
+        <!--[if lte IE 6]>
+        <link rel="stylesheet" href="${request.static_url('paas:static/ie6.css')}" type="text/css" media="screen" charset="utf-8" />
+        <![endif]-->
+    </head>
+    <body>
+        <!-- The dark background -->
+        <div class="background-cover">&nbsp;</div>
+        <div class="background-cover-top">&nbsp;</div>
+        <div id="overlay-box-loading" class="overlay-loading">
+            <p>Processing&nbsp;...&nbsp;Please Wait</p>
+        </div>
+        <div id="wrap">
+            <div id="top">
+                <div class="top align-center">
+                    <h1>PaaS Tool</h1>
+                </div>
+            </div>
+            <div id="middle">
+                <form id="create_form">
+                    <fieldset>
+                        <legend id="title">Submit PaaS Ticket</legend>
+                        <br />
+                        <div>
+                            <label for="paasName" id="paasNameLabel">Name</label>
+                            <input type="text" id="paasName" class="input" name="name" size="100" maxlength="2000" />
+                        </div>
+                        <div>
+                            <label for="paasProject" id="paasProjectLabel">Project</label>
+                            <select class="input select-menu" id="paasProject" name="project" size="10"></select>
+                        </div>
+                        <div>
+                            <label for="paasDeployable" id="paasDeployableLabel">Deployable</label>
+                            <select class="input select-menu" id="paasDeployable" name="deployable" size="5" multiple="multiple"></select>
+                        </div>
+                        <div>
+                            <label for="paasVersion" id="paasVersionLabel">Version</label>
+                            <!--input type="text" id="paasVersion" class="input" name="version" size="100" maxlength="2000" /-->
+                            <select class="input" id="paasVersion" name="version"></select>
+                        </div>
+                        <div>
+                            <label for="paasEmails" id="paasEmailsLabel">CC Emails<br /><sub style="font-size: 0.6em">(comma separated)</sub></label>
+                            <input type="text" id="paasEmails" class="input" name="mailer" size="100" maxlength="2000" />
+                        </div>
+                        <div>
+                            <label for="paasNotes" id="paasNotesLabel">Notes</label>
+                            <textarea rows="15" cols="74" id="paasNotes" name="notes" class="input"></textarea>
+                        </div>
+                        <div>
+                            <label for="paasLogin" id="paasLoginLabel">Login</label>
+                            <input type="text" class="input select-menu" id="paasLogin" name="login" size="25" maxlength="100" tal:attributes="value id" />
+                        </div>
+                        <div>
+                            <label for="paasPassword" id="paasPasswordLabel">Password</label>
+                            <input type="password" class="input select-menu" id="paasPassword" name="password" size="25" maxlength="100" />
+                        </div>
+                        <div>
+                            <br />
+                            <input type="button" style="width: 8em;" class="control input submit_button submit_create" id="submit_create" value=" Submit " />
+                            <input type="button" style="width: 8em;" class="control input cancel_button cancel_create" id="cancel_create" value=" Cancel " />
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div id="bottom">
+                <div class="bottom">
+                    <div id="status-panel">
+                        <div id="app-status">
+                            <span>User ID:</span>
+                            <span id="status-ready" tal:content="id">&nbsp;</span>
+                            <span id="notifications">
+                                <img id="loading" src="/static/images/loading_bar.gif" alt="loading" />
+                                <span>Processing....Please Wait</span>
+                            </span>
+                            <span id="message" class="ui-widget"></span>
+                        </div>
+                        <div id="app-options">
+                            <ul>
+                                <li class="ignore" id="logout"><a href="/logout">Exit Tool</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+          <div class="footer">&copy; Copyright 2011, Shopzilla, Inc.</div>
+        </div>
+    </body>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/paas.js"></script>
+</html>

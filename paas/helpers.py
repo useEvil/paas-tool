@@ -96,14 +96,6 @@ def number(n):
         out = '<span style="color: red;">-' + out + '</span>'
     return out
 
-def getUser(session=None):
-    if session:
-        userId = hasUserId(session)
-        user   = getSessionData(session, 'meta')
-        perms  = getSessionData(session, 'permissions')
-        return dict({'id':userId,'permissions':perms,'meta':user})
-    return None
-
 def hasUserId(session=None):
     if session:
         return getSessionData(session, 'userId')
@@ -164,6 +156,14 @@ def sessionTestClass(rule=None, base_class=""):
         brand_style += ' disabled'
     attrs = "%s %s" % (base_class, brand_style)
     return attrs
+
+def getUser(session=None):
+    if session:
+        userId = hasUserId(session)
+        user   = getSessionData(session, 'meta')
+        perms  = getSessionData(session, 'permissions')
+        return dict({'id': userId, 'permissions': perms, 'meta': user})
+    return None
 
 def getStartEnd(start=None, end=None, type='short'):
     if start:

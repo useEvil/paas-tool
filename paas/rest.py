@@ -61,6 +61,64 @@ def listing(request):
         result['rows'].append(row)
     return result
 
+@view_config(route_name='rest_projects', renderer='json', request_method='GET')
+#@AuthorizationControl('authorize')
+def projects(request):
+    uri = '%s%s/site'%(getSettings('dui.domain'), getSettings('dui.path'))
+    Log.debug('==== uri [%s]'%(uri))
+    content = getHttpRequest(uri)
+    try: projects = findall('<a href="/admin/default/design/[^"]+">([^<]+)</a>', content)
+    except Exception: print "No projects found"
+    Log.debug('==== projects [%s]'%(projects))
+    return projects
+
+@view_config(route_name='rest_environments', renderer='json', request_method='GET')
+#@AuthorizationControl('authorize')
+def environments(request):
+    project = request.matchdict['project']
+    Log.debug('==== project [%s]'%(project))
+    uri = '%s%s/design/%s'%(getSettings('dui.domain'), getSettings('dui.path'), project)
+    Log.debug('==== uri [%s]'%(uri))
+    content = getHttpRequest(uri)
+    try: envs = findall("<h4>[^<]+<b>([^<]+)</b>", content)
+    except Exception: print "No environments found"
+    Log.debug('==== envs [%s]'%(envs))
+    return envs
+
+@view_config(route_name='rest_builds', renderer='json', request_method='GET')
+#@AuthorizationControl('authorize')
+def builds(request):
+    project = request.matchdict['project']
+    Log.debug('==== project [%s]'%(project))
+    uri = '%s%s/peek/%s/bin/application.conf'%(getSettings('dui.domain'), getSettings('dui.path'), project)
+    Log.debug('==== uri [%s]'%(uri))
+    content = getHttpRequest(uri)
+    try: type = findall('BUILD_REMOTE_LOC=\$REMOTE_SVR/builds/(\w+)', content)[0]
+    except IndexError: print "No app type found"; return
+    Log.debug('==== type [%s]'%(type))
+    uri = '%s%s/%s/%s/'%(getSettings('builds.domain'), getSettings('builds.path'), type, project)
+    Log.debug('==== uri [%s]'%(uri))
+    content = getHttpRequest(uri)
+    Log.debug('==== content [%s]'%(content))
+    try:
+        builds = findall('<a href="(\w+)-(\w*)-([b]\d+)-(.+)[.]\w+">', content)
+        sorted(builds, key=itemgetter(2), reverse=True)
+    except Exception: print "No builds found"
+    if not builds:
+        try:
+            builds = findall('<a href="(\w+)-([b]\d+)-(.+)[.]\w+">', content)
+            sorted(builds, key=itemgetter(1), reverse=True)
+        except Exception: print "No builds found"
+
+    Log.debug('==== len(builds) [%s]'%(len(builds)))
+    Log.debug('==== builds [%s]'%(builds))
+    return builds
+    length = len(builds)
+    if length > 10:
+        return builds[length-10:length]
+    else:
+        return builds
+
 @view_config(route_name='rest_app_create', renderer='json', request_method='GET')
 #@AuthorizationControl('administer')
 def create(request):

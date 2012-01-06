@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:tal="http://xml.zope.org/namespaces/tal">
+    <head>
+        <title>CM Release Tracking Tool</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+        <meta name="keywords" content="python web application tool" />
+        <meta name="description" content="pyramid web application" />
+        <link rel="shortcut icon" href="${request.static_url('paas:static/images/favicon.ico')}" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/css/paas.css')}" type="text/css" media="screen" charset="utf-8" />
+        <link rel="stylesheet" href="${request.static_url('paas:static/js/flexigrid/css/flexigrid/flexigrid.css')}" type="text/css" media="screen" charset="utf-8" />
+        <!--[if lte IE 6]>
+        <link rel="stylesheet" href="${request.static_url('paas:static/ie6.css')}" type="text/css" media="screen" charset="utf-8" />
+        <![endif]-->
+    </head>
+    <body>
+        <!-- The dark background -->
+        <div class="background-cover">&nbsp;</div>
+        <div class="background-cover-top">&nbsp;</div>
+        <div id="overlay-box-loading" class="overlay-loading">
+            <p>Processing&nbsp;...&nbsp;Please Wait</p>
+        </div>
+        <div id="wrap">
+            <div id="top">
+                <div class="top align-center">
+                    <h1>CM Release Tracking Tool</h1>
+                </div>
+            </div>
+            <div id="middle">
+                <form id="create_form">
+                    <fieldset>
+                        <legend id="title">Submit Release Ticket</legend>
+                        <br />
+                        <div>
+                            <label for="releaseId" id="releaseIdLabel">Release ID</label>
+                            <input type="text" class="input select-menu" id="releaseId" name="releaseId" size="25" maxlength="100" readonly="readonly" tal:attributes="value release.id" />
+                        </div>
+                        <div>
+                            <label for="releaseRT" id="releaseRTLabel">RT ID</label>
+                            <input type="text" class="input select-menu" id="releaseRT" name="releaseRT" size="25" maxlength="100" readonly="readonly" tal:attributes="value release.rt" />
+                        </div>
+                        <div>
+                            <label for="createdBy" id="createdByLabel">Created By</label>
+                            <input type="text" class="input select-menu" id="createdBy" name="createdBy" size="25" maxlength="100" readonly="readonly" tal:attributes="value release.createdBy" />
+                        </div>
+                        <div>
+                            <label for="createdDate" id="createdDateLabel">Created Date</label>
+                            <input type="text" class="input select-menu" id="createdDate" name="createdDate" size="25" maxlength="100" readonly="readonly" tal:attributes="value release.createdDate.strftime(h.getSettings('date.long'))" />
+                        </div>
+                        <div>
+                            <label for="approvedBy" id="approvedByLabel">Approved By</label>
+                            <input type="text" class="input select-menu" id="approvedBy" name="approvedBy" size="25" maxlength="100" readonly="readonly" tal:attributes="value release.approvedBy" tal:condition="release.approvedBy" />
+                            <span tal:condition="python: not release.approvedBy">
+                                <a href="#" id="approve_release">Approve</a>
+                                <input type="text" class="input select-menu hidden" id="approvedBy" name="approvedBy" size="25" maxlength="100" readonly="readonly" />
+                            </span>
+                        </div>
+                        <div>
+                            <label for="releaseProject" id="releaseProjectLabel">Project</label>
+                            <select class="input select-menu" id="releaseProject" name="project" disabled="disabled">
+                                <option tal:attributes="value release.project" tal:content="release.project"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="releaseEnvironment" id="releaseEnvironmentLabel">Environment</label>
+                            <select class="input select-menu" id="releaseEnvironment" name="environment" disabled="disabled">
+                                <option tal:attributes="value release.environment" tal:content="release.environment"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="releaseDeployable" id="releaseDeployableLabel">Deployable</label>
+                            <select class="input select-menu" id="releaseDeployable" name="Deployable" disabled="disabled">
+                                <option tal:attributes="value release.deployable" tal:content="release.deployable"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="releaseVersion" id="releaseVersionLabel">Version</label>
+                            <input type="text" id="releaseVersion" class="input" name="version" size="100" maxlength="2000" readonly="readonly" tal:attributes="value release.version" />
+                        </div>
+                        <div>
+                            <label for="releaseRollback" id="releaseRollbackLabel">Rollback</label>
+                            <input type="text" id="releaseRollback" class="input" name="rollback" size="100" maxlength="2000" readonly="readonly" tal:attributes="value release.rollback" />
+                        </div>
+                        <div>
+                            <label for="releaseEmails" id="releaseEmailsLabel">CC Emails<br /><sub>(comma separated)</sub></label>
+                            <input type="text" id="releaseEmails" class="input" name="mailer" size="100" maxlength="2000" readonly="readonly" tal:attributes="value release.mailer" />
+                        </div>
+                        <div>
+                            <label for="releaseProperties" id="releasePropertiesLabel">Properties</label>
+                            <textarea rows="15" cols="74" id="releaseProperties" name="properties" class="input" readonly="readonly" tal:attributes="value release.properties"></textarea>
+                        </div>
+                        <div>
+                            <label for="releaseNotes" id="releaseNotesLabel">Notes</label>
+                            <textarea rows="15" cols="74" id="releaseNotes" name="notes" class="input" readonly="readonly" tal:attributes="value release.notes"></textarea>
+                        </div>
+                        <div>
+                            <br />
+                            <input type="button" style="width: 8em;" class="control input cancel_button cancel_create" id="cancel_create" value=" Return " />
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div id="bottom">
+                <div class="bottom">
+                    <div id="status-panel">
+                        <div id="app-status">
+                            <span>User ID:</span>
+                            <span id="status-ready" tal:content="id">&nbsp;</span>
+                            <span id="notifications">
+                                <img id="loading" src="/static/images/loading_bar.gif" alt="loading" />
+                                <span>Processing....Please Wait</span>
+                            </span>
+                            <span id="message" class="ui-widget"></span>
+                        </div>
+                        <div id="app-options">
+                            <ul>
+                                <li class="ignore" id="logout"><a href="/logout">Exit Tool</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+          <div class="footer">&copy; Copyright 2011, Shopzilla, Inc.</div>
+        </div>
+    </body>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/paas.js"></script>
+</html>

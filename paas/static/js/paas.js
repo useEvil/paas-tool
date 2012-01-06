@@ -12,10 +12,7 @@ $('.submit_create').live('click', submitCreateForm);
 $('.submit_login').live('click', submitLoginForm);
 $('.cancel_create').live('click', cancelCreateForm);
 $('.cancel_login').live('click', cancelForm);
-$('.approve_release').live('click', approveReleaseList);
-$('#approve_release').live('click', approveRelease);
-$('#releaseEnvironment').live('change', getEnvironments);
-$('#releaseProject').live('click', getBuilds);
+$('#paasProject').live('click', getBuilds);
 
 
 /* Binds */
@@ -25,7 +22,7 @@ $(window).bind('resize',showOverlayBox);
 $(document).ready(function() {
     clearMessage();
     if ((window.location.href.indexOf('login') > -1) || (window.location.href.indexOf('create') > -1)) {
-        initDatePickers();
+//        initDatePickers();
         getProjects();
     }
 });
@@ -42,7 +39,7 @@ var toggleContent = function(e) {
 
 /* Init Functions */
 function initDatePickers() {
-    $('#releaseDate').datetime(/*{ defaultDate: startDate, maxDate: endDate }*/)
+    $('#paasDate').datetime(/*{ defaultDate: startDate, maxDate: endDate }*/)
 }
 
 
@@ -202,14 +199,12 @@ function submitCreateForm(event, id) {
     var display = parts[1];
     if (validateForm(display, id)) {
         return false;
-    } else {
-        $('#releaseStatus').attr('disabled', false);
     }
     var params  = $('#'+display+'_form').serialize();
     doOverlayOpen('loading');
     $.ajax(
         {
-            url: '/REST/release/create',
+            url: '/REST/app/create',
             type: 'post',
             data: params,
             timeout: 10000,
@@ -230,7 +225,7 @@ function submitLoginForm(event, id) {
     doOverlayOpen('loading', 25);
     $.ajax(
         {
-            url: '/REST/release/login',
+            url: '/REST/paas/login',
             type: 'post',
             data: params,
             timeout: 10000,
@@ -241,7 +236,7 @@ function submitLoginForm(event, id) {
 }
 
 function showCreatePage(event) {
-    window.location.href = '/create';
+    window.location.href = '/app/create';
 }
 
 function showLoginForm(event) {
@@ -259,7 +254,6 @@ function showReports(event) {
 function failedCreateForm(data) {
     if (data['status'] == 500) data['message'] = data['status'] + ': ' + data['statusText'];
     doOverlayClose('loading', 25);
-    $('#releaseStatus').attr('disabled', true);
     updateStatus(data);
 }
 
@@ -290,9 +284,6 @@ function updateApproveStatus(data) {
     doOverlayClose('loading');
     updateStatus(data);
     if (data['status'] != 200) return;
-    $('#approvedBy').attr('value', data['userId']);
-    $('#approvedBy').show();
-    $('#approve_release').hide();
 }
 
 function updateApproveStatusList(data) {
@@ -304,7 +295,7 @@ function updateApproveStatusList(data) {
 
 function updateProjectList(data) {
     doOverlayClose('loading');
-    var varId = $('#releaseProject');
+    var varId = $('#paasProject');
     varId.children().each(function(){
         $(this).remove();
     });
@@ -316,7 +307,7 @@ function updateProjectList(data) {
 
 function updateEnvironmentList(data) {
     doOverlayClose('loading');
-    var varId = $('#releaseDeployable');
+    var varId = $('#paasDeployable');
     varId.children().each(function(){
         $(this).remove();
     });
@@ -328,7 +319,7 @@ function updateEnvironmentList(data) {
 
 function updateBuildList(data) {
     doOverlayClose('loading');
-    var varId = $('#releaseVersion');
+    var varId = $('#paasVersion');
     varId.children().each(function(){
         $(this).remove();
     });
@@ -337,20 +328,7 @@ function updateBuildList(data) {
         var option = new Option(build, build);
         varId.append(option);
     }
-    updateRollbackList(data);
-}
-
-function updateRollbackList(data) {
-    doOverlayClose('loading');
-    var varId = $('#releaseRollback');
-    varId.children().each(function(){
-        $(this).remove();
-    });
-    for (key in data) {
-        var build  = data[key].join('-');
-        var option = new Option(build, build);
-        varId.append(option);
-    }
+    getEnvironments(data);
 }
 
 function updateStatus(data) {
@@ -380,11 +358,11 @@ function validateForm(object, id) {
     }
     for (key in required) {
         var field    = required[key].replace(/ /g, '');
-        var value    = $('#release'+field).val();
-        var selected = $('#release'+field+' option:selected');
+        var value    = $('#paas'+field).val();
+        var selected = $('#paas'+field+' option:selected');
         if (selected.val()) value = selected.val();
         if (!value) {
-            $('#release'+field+'Label').css('color', '#FF0000');
+            $('#paas'+field+'Label').css('color', '#FF0000');
             message = {
                 'status': 404,
                 'message': title +required[key]+' is Required'
@@ -392,41 +370,28 @@ function validateForm(object, id) {
             updateStatus(message);
             error = true;
         } else {
-            $('#release'+field+'Label').css('color', '#000000');
+            $('#paas'+field+'Label').css('color', '#000000');
         }
     }
     return error;
-}
-
-function approveRelease(event) {
-    doOverlayOpen('loading');
-    $.getJSON('/REST/release/approve/'+$('#releaseId').val(), updateApproveStatus);
-}
-
-function approveReleaseList(event, id) {
-    var itemId = id ? id : this.id;
-    var parts  = itemId.split('_');
-    var releaseId = parts[1];
-    doOverlayOpen('loading');
-    $.getJSON('/REST/release/approve/'+releaseId, updateApproveStatusList);
 }
 
 function getProjects(event, id) {
     var itemId = id ? id : this.id;
     var selected = $('#'+itemId+' option:selected');
     doOverlayOpen('loading');
-    $.getJSON('/REST/release/projects', updateProjectList);
+    $.getJSON('/REST/paas/projects', updateProjectList);
 }
 
 function getEnvironments(event, id) {
-    var selected = $('#releaseProject option:selected');
+    var selected = $('#paasProject option:selected');
     doOverlayOpen('loading');
-    $.getJSON('/REST/release/environments/'+selected.val(), updateEnvironmentList);
+    $.getJSON('/REST/paas/environments/'+selected.val(), updateEnvironmentList);
 }
 
 function getBuilds(event, id) {
     var itemId = id ? id : this.id;
     var selected = $('#'+itemId+' option:selected');
     doOverlayOpen('loading');
-    $.getJSON('/REST/release/builds/'+selected.val(), updateBuildList);
+    $.getJSON('/REST/paas/builds/'+selected.val(), updateBuildList);
 }
