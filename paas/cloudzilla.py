@@ -10,7 +10,6 @@ import os
 import socket
 import base64
 import logging
-import cookielib
 import urllib
 import urllib2
 import sys
@@ -27,30 +26,31 @@ class CloudZilla(object):
     """CloudZilla API Library"""
     def login(self, userId=None, userPass=None):
         Log.debug('login')
-        """ sends data to RT System """
+        """ sends data to CloudZilla System """
         if not userId and not userPass: return
-        uri    = '%s%s/'%(getSettings('rt.domain'), getSettings('rt.path'))
+        uri    = '%s%s/'%(getSettings('cloud.domain'), getSettings('cloud.path'))
         data = {'user': userId, 'pass': userPass}
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
         try:
-            code, content = self._sendToRT(uri, data)
+            code, content = self._sendToCloudZilla(uri, data)
             if code == 401:
                 print 'Login Info Incorrect'
                 sys.exit()
             elif code == 200:
                 print 'Login Correct'
                 return
-        except urllib2.URLError:
-            print 'Failed to get Authenticated Session'
+        except urllib2.URLError, e:
+            print 'Failed to login'
+            Log.error(e)
             sys.exit()
 
     def create(self, params=None, userId=None, userEmail=None):
         Log.debug('create')
-        """ sends data to RT System """
+        """ sends data to CloudZilla System """
         if not userId: userId = params['login']
         type = Application().getById(params['type'])
-        uri  = '%s%s/ticket/new'%(getSettings('rt.domain'), getSettings('rt.path'))
+        uri  = '%s%s/ticket/new'%(getSettings('cloud.domain'), getSettings('cloud.path'))
         body = Template("""Project:
                                 $project
 
@@ -97,116 +97,111 @@ Text: $content""")
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
         try:
-            code, content = self._sendToRT(uri, data)
+            code, content = self._sendToCloudZilla(uri, data)
             try: rt_id = findall("Ticket (\d+) created", content)[0]
-            except IndexError: print 'Unknown RT ID'; sys.exit()
+            except IndexError: print 'Unknown CloudZilla ID'; sys.exit()
             Log.debug('==== rt_id [%s]'%(rt_id))
             return rt_id
-        except urllib2.URLError:
-            print 'Failed to get Authenticated Session'
+        except urllib2.URLError, e:
+            print 'Failed to create'
+            Log.error(e)
             sys.exit()
 
     def comment(self, params=None, userId=None, userEmail=None):
         Log.debug('comment')
-        """ sends data to RT System """
+        """ sends data to CloudZilla System """
         if not userId: userId = params['login']
-        uri    = '%s%s/ticket/%d/comment'%(getSettings('rt.domain'), getSettings('rt.path'), params['releaseRT'])
+        uri    = '%s%s/ticket/%d/comment'%(getSettings('cloud.domain'), getSettings('cloud.path'), params['releaseCloudZilla'])
         ticket = Template("""id: $rt_id
 Action: Comment
 Text: $content""")
         data = dict({
-            'rt_id': params['releaseRT'],
+            'rt_id': params['releaseCloudZilla'],
             'content': params['comment']
         })
         data = {'user': userId, 'pass': params['password'], 'content': string.safe_substitute(data)}
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
         try:
-            code, content = self._sendToRT(uri, data)
+            code, content = self._sendToCloudZilla(uri, data)
             try: rt_id = findall("Ticket (\d+) created", content)[0]
-            except IndexError: print 'Unknown RT ID'; sys.exit()
+            except IndexError: print 'Unknown CloudZilla ID'; sys.exit()
             Log.debug('==== rt_id [%s]'%(rt_id))
             return rt_id
-        except urllib2.URLError:
-            print 'Failed to get Authenticated Session'
+        except urllib2.URLError, e:
+            print 'Failed to comment'
+            Log.error(e)
             sys.exit()
 
-    def approve(self, releaseRT=None, userId=None):
+    def approve(self, releaseCloudZilla=None, userId=None):
         Log.debug('approve')
-        """ sends data to RT System """
-        if not releaseRT and not userId: return
-        uri    = '%s%s/ticket/%d/comment'%(getSettings('rt.domain'), getSettings('rt.path'), releaseRT)
+        """ sends data to CloudZilla System """
+        if not releaseCloudZilla and not userId: return
+        uri    = '%s%s/ticket/%d/comment'%(getSettings('cloud.domain'), getSettings('cloud.path'), releaseCloudZilla)
         ticket = Template("""id: $rt_id
 Action: Comment
 Text: $content""")
         data = dict({
-            'rt_id': releaseRT,
+            'rt_id': releaseCloudZilla,
             'content': 'Approved by %s'%(userId)
         })
         data = {'user': userId, 'content': ticket.safe_substitute(data)}
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
         try:
-            code, content = self._sendToRT(uri, data)
+            code, content = self._sendToCloudZilla(uri, data)
             try: result = findall('Message recorded', content)[0]
             except IndexError: print 'Message Not Authorized'; sys.exit()
-        except urllib2.URLError:
-            print 'Failed to get Authenticated Session'
+        except urllib2.URLError, e:
+            print 'Failed to approve'
+            Log.error(e)
             sys.exit()
 
-    def resolved(self, releaseRT=None, userId=None):
+    def resolved(self, releaseCloudZilla=None, userId=None):
         Log.debug('resolved')
-        """ sends data to RT System """
-        if not releaseRT and not userId: return
-        uri    = '%s%s/ticket/%d/comment'%(getSettings('rt.domain'), getSettings('rt.path'), releaseRT)
+        """ sends data to CloudZilla System """
+        if not releaseCloudZilla and not userId: return
+        uri    = '%s%s/ticket/%d/comment'%(getSettings('cloud.domain'), getSettings('cloud.path'), releaseCloudZilla)
         ticket = Template("""id: $rt_id
 Action: Comment
 Status: resolved
 Text: $content""")
         data = dict({
-            'rt_id': params['releaseRT'],
+            'rt_id': params['releaseCloudZilla'],
             'content': 'Resolved by %s'%(userId)
         })
         data = {'user': userId, 'content': ticket.safe_substitute(data)}
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
         try:
-            code, content = self._sendToRT(uri, data)
+            code, content = self._sendToCloudZilla(uri, data)
             try: result = findall("Message recorded", content)[0]
             except IndexError: print 'Message Not Resolved'; sys.exit()
             return
-        except urllib2.URLError:
-            print 'Failed to get Authenticated Session'
+        except urllib2.URLError, e:
+            print 'Failed to resolve'
+            Log.error(e)
             sys.exit()
 
-    def _sendToRT(self, uri=None, data=None):
+    def _sendToCloudZilla(self, uri=None, data=None):
         if not uri and not data: return
-        Log.debug('_sendToRT')
-        """ sends data to RT System """
-        cj   = cookielib.LWPCookieJar()
-        file = '/tmp/%s.lwp'%(base64.b64encode(data['user']))
+        Log.debug('_sendToCloudZilla')
+        """ sends data to CloudZilla System """
         Log.debug('==== data [%s]'%(data))
         Log.debug('==== uri [%s]'%(uri))
-        Log.debug('==== file [%s]'%(file))
-        if cj is not None:
-            if os.path.isfile(file):
-                cj.load(file, ignore_discard=True, ignore_expires=True)
-#        for index, cookie in enumerate(cj):
-#            print index, '  ::  ', cookie
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        urllib2.install_opener(opener)
+        pass_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        pass_mgr.add_password(None, uri, data['user'], data['pass'])
+        urllib2.install_opener(urllib2.build_opener(urllib2.HTTPBasicAuthHandler(pass_mgr)))
         data  = urllib.urlencode(data)
         login = urllib2.Request(uri, data)
         try:
             response = urllib2.urlopen(login)
             code     = response.code
             content  = response.read()
-            Log.debug('==== response code [%s]'%(code))
-            Log.debug('==== response read [%s]'%(content))
-#            for index, cookie in enumerate(cj):
-#                print index, '  :  ', cookie
-            cj.save(file, ignore_discard=True, ignore_expires=True)
-        except urllib2.URLError:
+#            Log.debug('==== response code [%s]'%(code))
+#            Log.debug('==== response read [%s]'%(content))
+        except urllib2.URLError, e:
             print 'Failed to get Authenticated Session'
+            Log.error(e)
             sys.exit()
         return code, content

@@ -31,6 +31,7 @@ def main(global_config, **settings):
     config.add_route('rest_projects', '/REST/paas/projects')
     config.add_route('rest_builds', '/REST/paas/builds/{project}')
     config.add_route('rest_environments', '/REST/paas/environments/{project}')
+    config.add_route('cloud_login', '/REST/cloud/login')
     config.scan()
     return config.make_wsgi_app()
 

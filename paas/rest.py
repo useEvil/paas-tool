@@ -12,6 +12,7 @@ from operator import itemgetter, attrgetter
 from pyramid.view import view_config
 
 from paas.models import Application, Deploy
+from paas.cloudzilla import CloudZilla
 #from paas.authorization import AuthorizationControl
 from paas.helpers import *
 
@@ -181,6 +182,12 @@ def status(request):
         Log.error(e.message)
         return { 'status': 404, 'message': 'Failed to Update Test Status to: %s'%(status == 1 and 'Enabled' or 'Disabled') }
     return { 'status': 200, 'message': 'Successfully Updated Test Status to: %s'%(status == 1 and 'Enabled' or 'Disabled') }
+
+@view_config(route_name='cloud_login', renderer='json', request_method='GET')
+#@AuthorizationControl('index')
+def cloud_login(request):
+    CloudZilla().login('tnguyen','6885biG748mOnEy')
+    return { 'status': 200, 'message': 'Successfully Logged In' }
 
 
 ## internal functions ##
