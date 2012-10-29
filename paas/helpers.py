@@ -151,7 +151,7 @@ def sessionTestStyles(rule=None):
 def sessionTestClass(rule=None, base_class=""):
     if not rule:
         return {}
-    brand_style = rule.isBrand('br') and 'bizrate' or 'shopzilla'
+    brand_style = rule.isBrand('br') and 'brand2' or 'brand1'
     if not rule.enabled:
         brand_style += ' disabled'
     attrs = "%s %s" % (base_class, brand_style)
